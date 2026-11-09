@@ -1,7 +1,6 @@
 {
   "name": "@captiveorigins/payload-plugin-events",
   "version": "0.1.0",
-  "private": true,
   "description": "Events for Payload: events and their dates, with repeat rules in the event's timezone, near-me search, appearances, merge and split, and calendar files.",
   "keywords": [
     "payload",
@@ -13,6 +12,15 @@
     "rrule",
     "ics"
   ],
+  "license": "MIT",
+  "homepage": "https://github.com/CaptiveOrigins/payload-plugin-events#readme",
+  "bugs": {
+    "url": "https://github.com/CaptiveOrigins/payload-plugin-events/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CaptiveOrigins/payload-plugin-events.git"
+  },
   "type": "module",
   "exports": {
     ".": {
@@ -28,7 +36,8 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=22"
@@ -37,7 +46,8 @@
     "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run typecheck && npm test"
   },
   "peerDependencies": {
     "payload": "^3.80.0",

@@ -3,7 +3,7 @@
 Dated decisions for this repo, newest last.
 
 - 2026-11-09: created from the ops starter kit, area `captive-origins`.
-- 2026-11-09: the owner's plan is `captive-origins/docs/events-plugin-plan.md` (approved in principle 2026-11-09, with his answers). This repo stays private until his yes.
+- 2026-11-09: the owner's plan lives in the private platform repo (approved in principle 2026-11-09, with his answers).
 - 2026-11-09 (build): **wall-clock times.** Rules are worked out in floating time with the open-source `rrule` library, then turned into real instants in the event's timezone. A time skipped by spring-forward moves on by the gap; a repeated fall-back time takes the first.
 - 2026-11-09 (build): **generated dates keep their slot.** Each made date records the rule it came from and its original start. A person's edit marks it `edited`, and the rule never touches it again, even if it was moved.
 - 2026-11-09 (build): **calendar DTSTART is the first real occurrence**, never the rule's start day, because calendars count DTSTART as a date even when it's off the rule.
@@ -11,3 +11,4 @@ Dated decisions for this repo, newest last.
 - 2026-11-09 (build): **distance in code.** Near-me filters a bounded date window by great-circle distance, so it needs no geo index on the site's database.
 - 2026-11-09 (build): **the duplicate check is a live notice, not a question at save.** It shows while a new event's name, organizer or website is typed, with "add a date to it instead" (or "make it reusable"), and "It's a different event". Stopping Payload's save to ask would mean replacing its save button. Nothing is merged without a person's yes either way.
 - 2026-11-09 (build): **dates are added from the event's page** through a join field, so a new date comes pre-linked.
+- 2026-11-09 (later): the owner said yes to going public after the first-public-push audit (Helm's chat: "Yes, audit then public"). MIT, like the other general Payload plugins. He changes the visibility and publishes 0.1.0 himself.
