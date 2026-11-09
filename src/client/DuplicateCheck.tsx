@@ -52,7 +52,7 @@ export function DuplicateCheck() {
   }
 
   return (
-    <div role="status" aria-live="polite" className="field-type" style={{ marginBottom: 'var(--base, 20px)', padding: '12px 16px', borderRadius: 'var(--style-radius-s, 4px)', border: '1px solid var(--theme-warning-500, #b26b00)', background: 'var(--theme-warning-50, #fff7e6)', color: 'var(--theme-text)' }}>
+    <div role="status" aria-live="polite" className="field-type events-duplicate-check" style={{ marginBottom: 'var(--base, 20px)', padding: '12px 16px', borderRadius: 'var(--style-radius-s, 4px)', border: '1px solid var(--theme-warning-500, #b26b00)', background: 'var(--theme-warning-50, #fff7e6)', color: 'var(--theme-text)' }}>
       <p style={{ margin: '0 0 8px', fontWeight: 600 }}>{matches.length === 1 ? 'This may already be here.' : 'These may already be here.'}</p>
       <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 12 }}>
         {matches.map((m) => (

@@ -26,4 +26,11 @@ Kept by this repo's owning session, per `~/Code/CLAUDE.md`, "Test self-audits". 
 | Calendar files: rule plus changed dates, escaping, folding at 75 octets | events: "calendar files" |
 
 - Gaps skipped: the `preview-rule`, `similar` and `not-duplicate` endpoints are thin wrappers over tested functions. They'll be covered with the admin screens that call them.
-- Not built yet: the admin screens.
+- Browser pass, 2026-11-09, on a local copy of a real site with made-up events (Playwright + axe, WCAG 2.2 AA):
+  - The live preview follows a weekday change before saving. The dates list shows the made dates.
+  - A split plan is refused for a rule-made date. Merge moves the dates, removes the old event and keeps its address.
+  - The duplicate warning appears while typing a name, and "It's a different event" clears it.
+  - The calendar file's DTSTART is the first real 3rd Thursday.
+  - axe: 0 on all three panels.
+  - Fixed on the way: rrule loading under a bundler (Node and Next resolve it differently), and singular wording in the merge summary.
+- Not tested: drag and drop by mouse (the "Move to" list was used), a real screen reader.

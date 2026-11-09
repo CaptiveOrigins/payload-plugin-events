@@ -47,7 +47,7 @@ export function RulePreview() {
   const fmt = (iso: string) =>
     new Intl.DateTimeFormat(undefined, { timeZone: preview?.timezone, weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(iso))
   return (
-    <div className="field-type" style={{ marginBottom: 'var(--base, 20px)' }}>
+    <div className="field-type events-rule-preview" style={{ marginBottom: 'var(--base, 20px)' }}>
       <div role="status" aria-live="polite" style={{ padding: '12px 16px', borderRadius: 'var(--style-radius-s, 4px)', background: 'var(--theme-elevation-50)', color: 'var(--theme-text)' }}>
         {failed ? (
           <p style={{ margin: 0 }}>Couldn’t check the rule just now. It’s checked again when you save.</p>

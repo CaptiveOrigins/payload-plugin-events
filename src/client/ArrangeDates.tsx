@@ -115,7 +115,7 @@ export function ArrangeDates() {
   )
 
   return (
-    <section className="field-type" aria-labelledby={`${uid}-h`} style={{ marginBottom: 'var(--base, 20px)' }}>
+    <section className="field-type events-arrange" aria-labelledby={`${uid}-h`} style={{ marginBottom: 'var(--base, 20px)' }}>
       <h3 id={`${uid}-h`} style={{ margin: '0 0 4px' }}>
         Arrange dates
       </h3>
@@ -152,7 +152,7 @@ export function ArrangeDates() {
               </label>,
             ),
           )}
-          <button type="button" className="btn btn--style-secondary btn--size-small" onClick={() => void addBucket()} style={{ alignSelf: 'start' }}>
+          <button type="button" className="btn btn--style-secondary btn--size-small" onClick={() => void addBucket()} style={{ alignSelf: 'start', justifySelf: 'start' }}>
             + New event
           </button>
         </div>

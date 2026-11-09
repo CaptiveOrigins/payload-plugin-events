@@ -190,7 +190,7 @@ export async function mergeEvents(req: PayloadRequest, input: { into: string; fr
     const why = await o.protectDate?.({ req, date: d, action: 'move' })
     if (why) refused.push(`${d.title ?? d.id}: ${why}`)
   }
-  const summary = `${sources.length} event${sources.length === 1 ? '' : 's'} merge into “${into.name}”; ${moving.length} date${moving.length === 1 ? '' : 's'} move; their addresses lead to it.`
+  const summary = `${sources.length === 1 ? '1 event merges' : `${sources.length} events merge`} into “${into.name}”; ${moving.length === 1 ? '1 date moves' : `${moving.length} dates move`}; ${sources.length === 1 ? 'its address leads' : 'their addresses lead'} to it.`
   if (!input.apply || refused.length) return { summary, moves: moving.length, refused, applied: false }
 
   await withTransaction(req, () =>

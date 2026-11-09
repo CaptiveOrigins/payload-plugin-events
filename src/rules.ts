@@ -1,6 +1,10 @@
-import rrule from 'rrule'
+import * as rruleModule from 'rrule'
 
-const { RRule } = rrule
+// Node loads rrule as CommonJS (everything under `default`); bundlers load its ES build (named exports only).
+// Read at run time with Reflect.get: a bundler rejects a static `.default` on the ES build, even as a fallback.
+const RRule = ((rruleModule as { RRule?: typeof import('rrule').RRule }).RRule ??
+  (Reflect.get(rruleModule, 'default') as { RRule: typeof import('rrule').RRule }).RRule) as typeof import('rrule').RRule
+type RRule = import('rrule').RRule
 
 export const WEEKDAYS = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] as const
 export type Weekday = (typeof WEEKDAYS)[number]

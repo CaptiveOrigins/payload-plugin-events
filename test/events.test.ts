@@ -265,6 +265,8 @@ describe('merge and split', () => {
     // A merged-away address isn't handed out again.
     expect((await mkEvent({ name: 'Phoenix Reptile Expo Spring' })).slug).toBe('phoenix-reptile-expo-spring-2')
 
+    const single = await mkEvent({ name: 'Phoenix Reptile Expo Winter' })
+    expect((await mergeEvents(req, { into: String(into.id), from: [String(single.id)] })).summary).toBe('1 event merges into “Phoenix Reptile Expo”; 0 dates move; its address leads to it.')
     const other = await mkEvent({ name: 'Other site', site: 'b' })
     expect((await mergeEvents(req, { into: String(into.id), from: [String(other.id)], apply: true })).refused[0]).toMatch(/different site/)
   })

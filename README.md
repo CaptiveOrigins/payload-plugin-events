@@ -2,7 +2,7 @@
 
 Events for Payload: events and their dates, with repeat rules in each event's own timezone, near-me search, appearances and drop-off, a duplicate check, merge and split, and calendar files.
 
-**Status:** early, private. The core passes 21 tests against a real Payload 3.92 and MongoDB with made-up events. The admin screens (live rule preview, the duplicate question, Arrange dates) aren't built yet, and it isn't in use on any site.
+**Status:** early, private. The core passes 23 tests against a real Payload 3.92 and MongoDB with made-up events. The admin screens (live rule preview, the duplicate check, Arrange dates) were tried in a browser on a local copy of a real site with made-up events, with axe finding nothing in them. It isn't in use on any site yet.
 
 ## What it does
 

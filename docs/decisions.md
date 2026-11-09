@@ -9,3 +9,5 @@ Dated decisions for this repo, newest last.
 - 2026-11-09 (build): **calendar DTSTART is the first real occurrence**, never the rule's start day, because calendars count DTSTART as a date even when it's off the rule.
 - 2026-11-09 (build): **appearance and drop-off.** Newly ticking drop-off without an appearance is refused. Turning the appearance off just ends drop-off.
 - 2026-11-09 (build): **distance in code.** Near-me filters a bounded date window by great-circle distance, so it needs no geo index on the site's database.
+- 2026-11-09 (build): **the duplicate check is a live notice, not a question at save.** It shows while a new event's name, organizer or website is typed, with "add a date to it instead" (or "make it reusable"), and "It's a different event". Stopping Payload's save to ask would mean replacing its save button. Nothing is merged without a person's yes either way.
+- 2026-11-09 (build): **dates are added from the event's page** through a join field, so a new date comes pre-linked.
