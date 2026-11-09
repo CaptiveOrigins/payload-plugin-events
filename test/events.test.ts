@@ -206,6 +206,14 @@ describe('duplicates', () => {
     expect(await findSimilar(payload, { name: 'Tucson Reptile Expo 2027', notDuplicateOf: [one.id] }, { where })).toEqual([])
     expect(await findSimilar(payload, { name: 'Completely different' }, { where })).toEqual([])
   })
+
+  it('remembers “It’s a different event” on both events once the new one is saved', async () => {
+    const old = await mkEvent({ name: 'Flagstaff Herp Fair' })
+    const fresh = await mkEvent({ name: 'Flagstaff Herp Fair', notDuplicateOf: [old.id] })
+    const back = (await payload.findByID({ collection: 'events', id: old.id, depth: 0 })) as unknown as EventDoc
+    expect((back.notDuplicateOf ?? []).map(String)).toEqual([String(fresh.id)])
+    expect(await findSimilar(payload, { name: 'Flagstaff Herp Fair', id: String(old.id), notDuplicateOf: back.notDuplicateOf }, { where: { site: { equals: 'a' } } })).toEqual([])
+  })
 })
 
 describe('merge and split', () => {
@@ -259,6 +267,21 @@ describe('merge and split', () => {
 
     const other = await mkEvent({ name: 'Other site', site: 'b' })
     expect((await mergeEvents(req, { into: String(into.id), from: [String(other.id)], apply: true })).refused[0]).toMatch(/different site/)
+  })
+})
+
+describe('the admin’s rule preview', () => {
+  it('words a finished rule with its next dates, and lists what an unfinished one is missing', async () => {
+    const ep = (payload.collections.events!.config.endpoints as Endpoint[]).find((e) => e.path === '/preview-rule')!
+    const call = async (rule: unknown) => {
+      const req = await as()
+      req.data = { rule } as never
+      return (await (await ep.handler(req)).json()) as { problems: string[]; summary?: string; next?: string[] }
+    }
+    const ok = await call({ ...monthly, from: '2027-01-15T12:00:00.000Z', every: 2 })
+    expect(ok.summary).toBe('Every 2 months on the 3rd Thursday at 19:00, from 15 January 2027')
+    expect(ok.next).toHaveLength(6)
+    expect((await call({ unit: 'month', monthly: 'weekdayOfMonth' })).problems).toEqual(expect.arrayContaining(['Choose which weekday of the month.', 'Choose a start time.']))
   })
 })
 

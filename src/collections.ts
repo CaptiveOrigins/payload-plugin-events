@@ -38,6 +38,7 @@ export function eventCollections(o: ResolvedEventsOptions): CollectionConfig[] {
     access: { read: readEvents, create: write, update: write, delete: write },
     fields: [
       { name: 'name', type: 'text', required: true },
+      { name: 'duplicateCheck', type: 'ui', admin: { components: { Field: '@captiveorigins/payload-plugin-events/client#DuplicateCheck' }, condition: (d: Record<string, unknown>) => !d?.id } },
       { name: 'slug', type: 'text', index: true, admin: { position: 'sidebar', description: 'Made from the name if left empty.' } },
       { name: 'type', type: 'select', required: true, defaultValue: 'other', options: o.types, admin: { position: 'sidebar' } },
       { name: 'summary', type: 'textarea' },
@@ -62,6 +63,7 @@ export function eventCollections(o: ResolvedEventsOptions): CollectionConfig[] {
         ],
       },
       { name: 'rule', type: 'group', label: 'Repeats', admin: { condition: (d: Record<string, unknown>) => Boolean(d?.recurring) }, fields: ruleFields(o.defaultTimezone) },
+      { name: 'rulePreview', type: 'ui', admin: { components: { Field: '@captiveorigins/payload-plugin-events/client#RulePreview' }, condition: (d: Record<string, unknown>) => Boolean(d?.recurring) } },
       { name: 'ruleSummary', type: 'textarea', label: 'In words, with the next dates', admin: { readOnly: true, condition: (d: Record<string, unknown>) => Boolean(d?.recurring) } },
       { name: 'ruleFingerprint', type: 'text', admin: { hidden: true } },
       { name: 'defaultVenue', type: 'group', label: 'Usual venue', admin: { description: 'New dates start with this venue.', condition: (d: Record<string, unknown>) => Boolean(d?.reusable || d?.recurring) }, fields: venueFields },
@@ -76,6 +78,8 @@ export function eventCollections(o: ResolvedEventsOptions): CollectionConfig[] {
             },
           ] as Field[])
         : []),
+      { name: 'dates', type: 'join', collection: o.dates as never, on: 'event', defaultSort: 'starts', defaultLimit: 20, admin: { description: 'Add a date here and it’s linked to this event.', condition: (d: Record<string, unknown>) => Boolean(d?.id) } },
+      { name: 'arrange', type: 'ui', label: 'Arrange dates', admin: { components: { Field: '@captiveorigins/payload-plugin-events/client#ArrangeDates' }, condition: (d: Record<string, unknown>) => Boolean(d?.id) } },
       { name: 'notDuplicateOf', type: 'relationship', relationTo: o.events as never, hasMany: true, admin: { readOnly: true, position: 'sidebar', description: 'Events someone said this is not a copy of.' } },
       { name: 'formerSlugs', type: 'text', hasMany: true, admin: { readOnly: true, position: 'sidebar', description: 'Old addresses that lead here after a merge.' } },
     ],
@@ -105,6 +109,14 @@ export function eventCollections(o: ResolvedEventsOptions): CollectionConfig[] {
       ],
       afterChange: [
         async ({ doc, previousDoc, req }) => {
+          // "Not a duplicate" holds both ways.
+          const before = new Set((previousDoc?.notDuplicateOf ?? []).map(idOf))
+          for (const other of (doc.notDuplicateOf ?? []).map(idOf).filter((x: string) => !before.has(x))) {
+            const e = (await req.payload.findByID({ collection: o.events as never, id: other, depth: 0, overrideAccess: true, draft: true, disableErrors: true, req })) as EventDoc | null
+            const theirs = (e?.notDuplicateOf ?? []).map(idOf)
+            if (e && !theirs.includes(String(doc.id)))
+              await req.payload.update({ collection: o.events as never, id: other, data: { notDuplicateOf: [...theirs, String(doc.id)] } as never, overrideAccess: true, req, context: { eventsSkipSync: true } })
+          }
           if (req.context?.eventsSkipSync) return doc
           const changed = doc.ruleFingerprint !== previousDoc?.ruleFingerprint || doc.recurring !== previousDoc?.recurring || doc._status !== previousDoc?._status
           if (changed && (doc.recurring || previousDoc?.recurring)) await syncDates(req.payload, doc as EventDoc, { req })
