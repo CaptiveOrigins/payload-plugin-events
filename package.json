@@ -1,0 +1,53 @@
+{
+  "name": "@captiveorigins/payload-plugin-events",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Events for Payload: events and their dates, with repeat rules in the event's timezone, near-me search, appearances, merge and split, and calendar files.",
+  "keywords": [
+    "payload",
+    "payload-plugin",
+    "payloadcms",
+    "events",
+    "calendar",
+    "recurring-events",
+    "rrule",
+    "ics"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepack": "npm run build"
+  },
+  "peerDependencies": {
+    "payload": "^3.80.0"
+  },
+  "dependencies": {
+    "rrule": "^2.8.1"
+  },
+  "devDependencies": {
+    "@payloadcms/db-mongodb": "3.92.1",
+    "@types/node": "^24.0.0",
+    "graphql": "^16.14.2",
+    "mongodb-memory-server": "^11.3.0",
+    "payload": "3.92.1",
+    "typescript": "^5.9.0",
+    "vitest": "^5.1.0"
+  }
+}
