@@ -130,9 +130,10 @@ function floating(rule: RepeatRule) {
 /** RFC 5545 text, with the timezone, for calendars: `DTSTART;TZID=…:…` and `RRULE:…`. */
 export function toICalRule(rule: RepeatRule) {
   const r = floating(rule)
-  const [y, mo, d] = parseDay(rule.from)
-  const [h, mi] = parseTime(rule.time)
-  const body = r
+  // DTSTART must be the first real occurrence: calendars count DTSTART itself as one, even off the rule.
+  const first = r.after(r.options.dtstart, true) ?? r.options.dtstart
+  const [y, mo, d, h, mi] = [first.getUTCFullYear(), first.getUTCMonth() + 1, first.getUTCDate(), first.getUTCHours(), first.getUTCMinutes()]
+  const body = new RRule({ ...r.origOptions, dtstart: first })
     .toString()
     .split('\n')
     .find((l) => l.startsWith('RRULE:'))!

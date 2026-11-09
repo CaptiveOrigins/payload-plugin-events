@@ -14,6 +14,7 @@ describe('repeat rules', () => {
     const r: RepeatRule = { ...base, every: 2, unit: 'month', monthly: 'weekdayOfMonth', setPos: 3, weekday: 'TH', from: '2027-01-15', ends: 'after', count: 6, timezone: 'America/Phoenix' }
     expect(all(r).map((d) => d.slice(5, 10))).toEqual(['01-21', '03-18', '05-20', '07-15', '09-16', '11-18'])
     expect(toICalRule(r).rrule).toBe('RRULE:FREQ=MONTHLY;INTERVAL=2;BYDAY=+3TH;COUNT=6')
+    expect(toICalRule(r).dtstart).toBe('DTSTART;TZID=America/Phoenix:20270121T190000') // the first 3rd Thursday, not 15 January
     expect(describeRule(r)).toBe('Every 2 months on the 3rd Thursday at 19:00, from 15 January 2027, 6 times')
   })
 
