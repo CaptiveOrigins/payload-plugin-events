@@ -32,7 +32,7 @@ Not covered by a test: the organizer suggestions, which are a browser list fed f
 | Duplicates by name, organizer, website, venue; the right question; "not a duplicate" remembered | events: "duplicates" |
 | Split plans first, keeps date ids, all-individual; refuses protected and rule-made dates | events: "merge and split" |
 | Merge moves dates, removes the old events, old addresses redirect and aren't reused; refuses across sites | events: "merges single events…" |
-| Near-me nearest first; drop-off only inside the window, with an appearance and drop-off, and not cancelled | events: "near me and drop-off" |
+| Near-me nearest first; drop-off only inside the window, with an appearance and drop-off, and not canceled | events: "near me and drop-off" |
 | Calendar files: rule plus changed dates, escaping, folding at 75 octets | events: "calendar files" |
 
 - Gaps skipped: the `preview-rule`, `similar` and `not-duplicate` endpoints are thin wrappers over tested functions. They'll be covered with the admin screens that call them.

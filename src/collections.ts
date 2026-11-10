@@ -162,7 +162,7 @@ export function eventCollections(o: ResolvedEventsOptions): CollectionConfig[] {
         defaultValue: 'scheduled',
         options: [
           { label: 'Scheduled', value: 'scheduled' },
-          { label: 'Cancelled', value: 'cancelled' },
+          { label: 'Canceled', value: 'canceled' },
           { label: 'Postponed', value: 'postponed' },
         ],
         admin: { position: 'sidebar' },

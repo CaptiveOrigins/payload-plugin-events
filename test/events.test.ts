@@ -295,11 +295,11 @@ describe('near me and drop-off', () => {
     const mesa = await mkDate(e, { starts: soon(31), venue: { postalCode: '85201' }, dropOff: true })
     await mkDate(e, { starts: soon(32), venue: { postalCode: '87101' }, dropOff: true }) // Albuquerque, ~330 miles
     await mkDate(e, { starts: soon(5), venue: { postalCode: '85001' }, dropOff: true }) // too soon to post a kit
-    await mkDate(e, { starts: soon(33), venue: { postalCode: '85001' }, status: 'cancelled' })
+    await mkDate(e, { starts: soon(33), venue: { postalCode: '85001' }, status: 'canceled' })
     await mkDate(e, { starts: soon(34), venue: { postalCode: '85001' }, appearance: false })
     const near = await nearbyDates(payload, { lng: -111.9, lat: 33.4, miles: 50, from: new Date(), to: new Date(Date.now() + 60 * 86_400_000), where: { site: { equals: 'n' } } })
     // Mesa is nearest; Phoenix twice (the soon one counts here, it's only too soon for drop-off); not Albuquerque,
-    // not the cancelled one. The unticked-appearance date is still a date.
+    // not the canceled one. The unticked-appearance date is still a date.
     expect(near[0]!.date.id).toBe(mesa.id)
     expect(near.map((n) => n.date.id)).toContain(phx.id)
     expect(near).toHaveLength(4)
@@ -315,7 +315,7 @@ describe('calendar files', () => {
   it('gives a recurring event one entry with its rule, leaving out changed dates and adding them back', async () => {
     const e = await mkEvent({ name: 'Club; meeting, monthly', recurring: true, rule: { ...monthly, from: day(0), timezone: 'America/New_York' }, defaultVenue: { name: 'Library', city: 'Boston' } })
     const ds = await datesOf(e.id)
-    await payload.update({ collection: 'event-dates', id: ds[1]!.id, data: { status: 'cancelled' } as never })
+    await payload.update({ collection: 'event-dates', id: ds[1]!.id, data: { status: 'canceled' } as never })
     const later = (iso: string) => new Date(new Date(iso).getTime() + 86_400_000).toISOString()
     await payload.update({ collection: 'event-dates', id: ds[2]!.id, data: { starts: later(ds[2]!.starts), ends: later(ds[2]!.ends!) } as never })
     const fresh = (await payload.findByID({ collection: 'events', id: e.id })) as unknown as EventDoc

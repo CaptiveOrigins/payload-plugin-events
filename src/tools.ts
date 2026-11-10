@@ -304,7 +304,7 @@ function vevent(e: EventDoc, d: EventDateDoc, uidDomain: string, url?: string) {
     ...(where(d.venue) ? [`LOCATION:${esc(where(d.venue))}`] : []),
     ...(e.summary ? [`DESCRIPTION:${esc(String(e.summary))}`] : []),
     ...(url ? [`URL:${url}`] : []),
-    ...(d.status === 'cancelled' ? ['STATUS:CANCELLED'] : []),
+    ...(d.status === 'canceled' ? ['STATUS:CANCELLED'] : []),
     'END:VEVENT',
   ]
 }
@@ -319,7 +319,7 @@ export function eventCalendar(e: EventDoc, dates: EventDateDoc[], opts: { uidDom
   const rule = e.recurring ? ruleOf(e.rule, opts.defaultTimezone ?? 'UTC') : null
   if (rule) {
     const ical = toICalRule(rule)
-    const changed = dates.filter((d) => d.source === 'rule' && (d.edited || d.status === 'cancelled'))
+    const changed = dates.filter((d) => d.source === 'rule' && (d.edited || d.status === 'canceled'))
     // EXDATE in the same form as DTSTART: local time with the TZID.
     const local = (iso: string) => {
       const w = instantToWall(new Date(iso), rule.timezone)
@@ -340,7 +340,7 @@ export function eventCalendar(e: EventDoc, dates: EventDateDoc[], opts: { uidDom
       ...(opts.url ? [`URL:${opts.url}`] : []),
       'END:VEVENT',
     )
-    for (const d of changed.filter((x) => x.status !== 'cancelled')) lines.push(...vevent(e, d, uidDomain, opts.url))
+    for (const d of changed.filter((x) => x.status !== 'canceled')) lines.push(...vevent(e, d, uidDomain, opts.url))
     for (const d of dates.filter((x) => x.source !== 'rule')) lines.push(...vevent(e, d, uidDomain, opts.url))
   } else for (const d of dates) lines.push(...vevent(e, d, uidDomain, opts.url))
   lines.push('END:VCALENDAR')

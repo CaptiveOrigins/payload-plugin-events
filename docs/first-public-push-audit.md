@@ -12,7 +12,7 @@ Run 2026-11-09 by the Web Platform session, before the repo goes public (per ~/C
 | Private terms (`scripts/leak-check.sh` locally, with ~/.leak-private-terms) | Passed |
 | Leak check in CI | Yes, first step of `.github/workflows/ci.yml` |
 | LICENSE | MIT, Copyright (c) 2026 Captive Origins (added in this audit) |
-| `package.json` | `private` removed so it can be published; licence, repository, homepage, bugs and `files` set; typecheck and tests run before publish |
+| `package.json` | `private` removed so it can be published; license, repository, homepage, bugs and `files` set; typecheck and tests run before publish |
 | Release workflow and RELEASING.md | Added, the same as the other Captive Origins packages |
 | README status line says what has and hasn't been tested | Yes |
 | Details of a real site | None. The tests use made-up events, and the README's example mentions kits only as one site's reason to protect a date |

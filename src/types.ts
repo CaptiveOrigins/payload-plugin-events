@@ -76,7 +76,7 @@ export type EventDateDoc = {
   starts: string
   ends?: string | null
   timezone?: string | null
-  status?: 'scheduled' | 'cancelled' | 'postponed'
+  status?: 'scheduled' | 'canceled' | 'postponed'
   source?: 'manual' | 'rule'
   edited?: boolean | null
   appearance?: boolean | null
