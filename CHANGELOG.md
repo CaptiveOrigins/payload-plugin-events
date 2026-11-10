@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.2 (2026-11-10)
+
+Security fixes from a review of 0.1.1.
+
+- **Drafts only for people who may change them.** Any signed-in account could read draft events and their dates. Now drafts are read only by those `access.write` lets in, and only where it lets them; everyone else, signed in or not, reads published ones. With the default write rule (anyone signed in) nothing changes. Pass `access.read` to replace it.
+- **A date's copied fields always come from its event.** `copyToDates` values were copied only when the request sent none, so a date could be saved with another site than its event's. They're now replaced on create, on every edit and when a date moves to another event.
+
+Tested: 27 tests (2 new; both fail without the fixes). Not yet tried on a site.
+
 ## 0.1.1 (2026-11-10)
 
 - **Fix: sites with GraphQL couldn't build their schema.** A repeat rule's start time was a select field whose values ("19:00") became GraphQL enum names, and a colon isn't allowed in one. Payload refused to build the schema, which broke every GraphQL request on the site. The start time is now stored the same way, as "HH:MM" text, and validated to 15-minute steps. The admin still shows a select of times, through the new `TimeSelect` field component (`/client`). Saved rules don't change.

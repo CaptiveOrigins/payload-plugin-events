@@ -1,4 +1,4 @@
-import { APIError, type Access, type CollectionConfig, type Field, type PayloadRequest } from 'payload'
+import { APIError, type Access, type CollectionConfig, type Field, type PayloadRequest, type Where } from 'payload'
 
 import { timezoneField, venueFields, ruleFields } from './fields.js'
 import { describeRule, nextOccurrences, ruleFingerprint, ruleProblems } from './rules.js'
@@ -27,8 +27,16 @@ export function eventCollections(o: ResolvedEventsOptions): CollectionConfig[] {
   const appearancesOn = (req: PayloadRequest, data?: unknown) => Boolean(o.appearances && (o.appearances.enabled?.({ req, data }) ?? true))
   const appearanceLabel = (o.appearances && o.appearances.label) || 'We’ll be there'
 
-  const readEvents: Access = o.access?.read ?? (({ req }) => (req.user ? true : { _status: { equals: 'published' } }))
-  const readDates: Access = o.access?.read ?? (({ req }) => (req.user ? true : { 'event._status': { equals: 'published' } } as never))
+  // Drafts only for people who may change them (where they may); everyone else, signed in or not, reads published.
+  const readable =
+    (published: Where): Access =>
+    async (args) => {
+      const w = await write(args)
+      if (w === true) return true
+      return w ? { or: [w as Where, published] } : published
+    }
+  const readEvents: Access = o.access?.read ?? readable({ _status: { equals: 'published' } })
+  const readDates: Access = o.access?.read ?? readable({ 'event._status': { equals: 'published' } } as Where)
 
   const events: CollectionConfig = {
     slug: o.events,
@@ -215,8 +223,10 @@ export function eventCollections(o: ResolvedEventsOptions): CollectionConfig[] {
             const why = await o.protectDate?.({ req, date: originalDoc as EventDateDoc, action: 'move' })
             if (why) bad(`This date can’t move to another event: ${why}`)
           }
+          // Copied fields (the site, say) always come from the event, never from the request: a date can't claim
+          // another site, on create, on an edit or by moving to another event.
+          for (const f of o.copyToDates) if ((event as Record<string, unknown>)[f] !== undefined) data[f] = (event as Record<string, unknown>)[f]
           if (operation === 'create' || idOf(originalDoc?.event) !== eventId) {
-            for (const f of o.copyToDates) if ((event as Record<string, unknown>)[f] !== undefined && data[f] === undefined) data[f] = (event as Record<string, unknown>)[f]
             if (!event!.reusable && !event!.recurring) {
               const others = await req.payload.count({ collection: o.dates as never, where: { and: [{ event: { equals: eventId } }, ...(originalDoc?.id ? [{ id: { not_equals: originalDoc.id } }] : [])] }, overrideAccess: true, req })
               if (others.totalDocs > 0) bad('A one-time event has one date. Tick “Reusable” on the event to add more.')
