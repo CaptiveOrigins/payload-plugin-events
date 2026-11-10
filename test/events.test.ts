@@ -343,3 +343,15 @@ describe('calendar files', () => {
     expect(text).toContain('\r\n ') // the description was folded
   })
 })
+
+describe('fixed choices', () => {
+  it('takes start times only in 15-minute steps and countries only as known codes, and keeps the organizer free text', async () => {
+    await expect(mkEvent({ name: 'Odd-minute meeting', recurring: true, rule: { ...monthly, from: day(0), time: '19:05' } })).rejects.toThrow()
+    const ok = await mkEvent({ name: 'Quarter-past meeting', organizer: 'A society nobody has used before', recurring: true, rule: { ...monthly, from: day(0), time: '19:15' } })
+    expect(ok.organizer).toBe('A society nobody has used before')
+    const single = await mkEvent({ name: 'Swap meet with a venue' })
+    await expect(mkDate(single, { venue: { city: 'Somewhere', country: 'XX' } })).rejects.toThrow()
+    const d = await mkDate(single, { venue: { city: 'Somewhere', country: 'US' } })
+    expect((d as unknown as { venue: { country: string } }).venue.country).toBe('US')
+  })
+})

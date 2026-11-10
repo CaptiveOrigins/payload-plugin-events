@@ -10,6 +10,24 @@ export const timezones = () => (zones ??= (Intl as unknown as { supportedValuesO
 export const timezoneField = (name: string, defaultValue: string, extra: Partial<Field> = {}): Field =>
   ({ name, type: 'select', defaultValue, options: timezones().map((z) => ({ label: z.replace(/_/g, ' '), value: z })), ...extra }) as Field
 
+/** ISO 3166-1 alpha-2 codes, shown by their English names. */
+const COUNTRY_CODES = 'AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW'.split(' ')
+let countries: { label: string; value: string }[] | null = null
+export const countryOptions = () => {
+  if (countries) return countries
+  const names = new Intl.DisplayNames(['en'], { type: 'region' })
+  return (countries = COUNTRY_CODES.map((value) => ({ value, label: names.of(value) ?? value })).sort((a, b) => a.label.localeCompare(b.label)))
+}
+
+/** Start times in 15-minute steps: stored as 24-hour "HH:MM", shown as "7:00 pm". */
+export const timeOptions = Array.from({ length: 96 }, (_, i) => {
+  const h = Math.floor(i / 4)
+  const m = (i % 4) * 15
+  const value = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+  const label = h === 0 && m === 0 ? 'Midnight' : h === 12 && m === 0 ? 'Noon' : `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`
+  return { value, label }
+})
+
 export const venueFields: Field[] = [
   { name: 'name', type: 'text', label: 'Venue' },
   { name: 'address', type: 'text' },
@@ -19,7 +37,7 @@ export const venueFields: Field[] = [
       { name: 'city', type: 'text' },
       { name: 'region', type: 'text', label: 'State or region' },
       { name: 'postalCode', type: 'text', label: 'Postal code' },
-      { name: 'country', type: 'text', admin: { description: 'Two-letter code, e.g. US.' } },
+      { name: 'country', type: 'select', options: countryOptions() },
     ],
   },
 ]
@@ -84,7 +102,7 @@ export function ruleFields(defaultTimezone: string): Field[] {
       type: 'row',
       fields: [
         { name: 'from', type: 'date', label: 'From', admin: { date: { pickerAppearance: 'dayOnly', displayFormat: 'd MMM yyyy' }, width: '30%' } },
-        { name: 'time', type: 'text', label: 'Starts at', admin: { placeholder: '19:00', width: '20%', description: '24-hour, local time.' } },
+        { name: 'time', type: 'select', label: 'Starts at', options: timeOptions, admin: { width: '20%', description: 'Local time.' } },
         { name: 'durationMinutes', type: 'number', min: 0, defaultValue: 120, label: 'Length (minutes)', admin: { width: '20%' } },
       ],
     },

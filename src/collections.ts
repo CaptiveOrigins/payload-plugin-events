@@ -46,7 +46,7 @@ export function eventCollections(o: ResolvedEventsOptions): CollectionConfig[] {
         type: 'row',
         fields: [
           { name: 'website', type: 'text', validate: (v: unknown) => !v || /^https?:\/\/\S+\.\S+/.test(String(v)) || 'Start the address with https://' },
-          { name: 'organizer', type: 'text' },
+          { name: 'organizer', type: 'text', admin: { components: { Field: '@captiveorigins/payload-plugin-events/client#OrganizerField' } } },
         ],
       },
       ...(o.media

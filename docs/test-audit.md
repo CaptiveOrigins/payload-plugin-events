@@ -2,6 +2,16 @@
 
 Kept by this repo's owning session, per `~/Code/CLAUDE.md`, "Test self-audits". Newest first.
 
+## 2026-11-09: fixed choices (field audit)
+
+`test/events.test.ts` gains 1 (24 in all).
+
+| Promise | Test |
+| --- | --- |
+| Start times only in 15-minute steps; venue countries only as known codes; the organizer stays free text | events: "takes start times only in 15-minute steps…" |
+
+Not covered by a test: the organizer suggestions, which are a browser list fed from the signed-in person's own events. Checked in a browser on a local copy of a site instead: two earlier organizers offered, new text accepted, axe 0 on the field.
+
 ## 2026-11-09: core built
 
 `test/rules.test.ts` (7) and `test/events.test.ts` (14), on Payload 3.92 with in-memory MongoDB and made-up events on two made-up sites.
