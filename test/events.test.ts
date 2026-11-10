@@ -1,6 +1,7 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { MongoMemoryReplSet } from 'mongodb-memory-server'
 import { buildConfig, createLocalReq, getPayload, type CollectionConfig, type Config, type Endpoint, type Payload, type PayloadRequest } from 'payload'
+import { configToSchema } from '@payloadcms/graphql'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { arrangeDates, dropOffDates, eventBySlug, eventCalendar, events, findSimilar, mergeEvents, nearbyDates, topUpRecurring, type EventDateDoc, type EventDoc } from '../src/index.js'
@@ -353,5 +354,12 @@ describe('fixed choices', () => {
     await expect(mkDate(single, { venue: { city: 'Somewhere', country: 'XX' } })).rejects.toThrow()
     const d = await mkDate(single, { venue: { city: 'Somewhere', country: 'US' } })
     expect((d as unknown as { venue: { country: string } }).venue.country).toBe('US')
+  })
+})
+
+
+describe('GraphQL', () => {
+  it('builds a valid schema: no select value that GraphQL can’t name (start times, timezones)', () => {
+    expect(() => configToSchema(payload.config)).not.toThrow()
   })
 })

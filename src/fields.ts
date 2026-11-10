@@ -1,6 +1,7 @@
 import type { Field } from 'payload'
 
 import { WEEKDAYS } from './rules.js'
+import { isStartTime } from './time.js'
 
 const DAY_LABELS: Record<string, string> = { MO: 'Monday', TU: 'Tuesday', WE: 'Wednesday', TH: 'Thursday', FR: 'Friday', SA: 'Saturday', SU: 'Sunday' }
 export const weekdayOptions = WEEKDAYS.map((value) => ({ value, label: DAY_LABELS[value]! }))
@@ -19,14 +20,7 @@ export const countryOptions = () => {
   return (countries = COUNTRY_CODES.map((value) => ({ value, label: names.of(value) ?? value })).sort((a, b) => a.label.localeCompare(b.label)))
 }
 
-/** Start times in 15-minute steps: stored as 24-hour "HH:MM", shown as "7:00 pm". */
-export const timeOptions = Array.from({ length: 96 }, (_, i) => {
-  const h = Math.floor(i / 4)
-  const m = (i % 4) * 15
-  const value = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
-  const label = h === 0 && m === 0 ? 'Midnight' : h === 12 && m === 0 ? 'Noon' : `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`
-  return { value, label }
-})
+export { timeOptions } from './time.js'
 
 export const venueFields: Field[] = [
   { name: 'name', type: 'text', label: 'Venue' },
@@ -102,7 +96,14 @@ export function ruleFields(defaultTimezone: string): Field[] {
       type: 'row',
       fields: [
         { name: 'from', type: 'date', label: 'From', admin: { date: { pickerAppearance: 'dayOnly', displayFormat: 'd MMM yyyy' }, width: '30%' } },
-        { name: 'time', type: 'select', label: 'Starts at', options: timeOptions, admin: { width: '20%', description: 'Local time.' } },
+        {
+          // Text, not select: "19:00" can't be a GraphQL enum name. The admin shows a select of 15-minute steps.
+          name: 'time',
+          type: 'text',
+          label: 'Starts at',
+          validate: (v: unknown) => (isStartTime(v) ? true : 'Pick a start time in 15-minute steps.'),
+          admin: { width: '20%', description: 'Local time.', components: { Field: '@captiveorigins/payload-plugin-events/client#TimeSelect' } },
+        },
         { name: 'durationMinutes', type: 'number', min: 0, defaultValue: 120, label: 'Length (minutes)', admin: { width: '20%' } },
       ],
     },

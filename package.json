@@ -1,6 +1,6 @@
 {
   "name": "@captiveorigins/payload-plugin-events",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Events for Payload: events and their dates, with repeat rules in the event's timezone, near-me search, appearances, merge and split, and calendar files.",
   "keywords": [
     "payload",
@@ -50,8 +50,8 @@
     "prepublishOnly": "npm run typecheck && npm test"
   },
   "peerDependencies": {
-    "payload": "^3.80.0",
     "@payloadcms/ui": "^3.80.0",
+    "payload": "^3.80.0",
     "react": "^19.0.0"
   },
   "dependencies": {
@@ -59,6 +59,7 @@
   },
   "devDependencies": {
     "@payloadcms/db-mongodb": "3.92.1",
+    "@payloadcms/graphql": "3.92.1",
     "@payloadcms/ui": "^3.92.1",
     "@types/node": "^24.0.0",
     "@types/react": "^19.3.0",
