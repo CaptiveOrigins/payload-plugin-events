@@ -1,6 +1,6 @@
 {
   "name": "@captiveorigins/payload-plugin-events",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Events for Payload: events and their dates, with repeat rules in the event's timezone, near-me search, appearances, merge and split, and calendar files.",
   "keywords": [
     "payload",

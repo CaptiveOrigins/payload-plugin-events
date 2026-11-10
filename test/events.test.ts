@@ -29,7 +29,7 @@ beforeAll(async () => {
       telemetry: false,
       typescript: { autoGenerate: false },
       db: mongooseAdapter({ url: mongo.getUri('events'), ensureIndexes: true }),
-      collections: [{ slug: 'users', auth: true, fields: [] }],
+      collections: [{ slug: 'users', auth: true, fields: [{ name: 'role', type: 'text' }] }],
       plugins: [
         events({
           media: false,
@@ -42,6 +42,8 @@ beforeAll(async () => {
             return p ? { lng: p[0], lat: p[1] } : null
           },
           protectDate: ({ date }) => (String(date.notes ?? '').includes('booked') ? 'Kits are booked for this date.' : null),
+          // Staff write everywhere; a member signs in but writes nothing.
+          access: { write: ({ req }) => Boolean(req.user) && (req.user as { role?: string }).role !== 'member' },
         }),
         addSite(),
       ],
@@ -187,6 +189,38 @@ describe('access', () => {
     expect((await ep.handler(req)).status).toBe(404)
     const merge = (payload.collections.events!.config.endpoints as Endpoint[]).find((e) => e.path === '/merge')!
     await expect(merge.handler(req)).rejects.toThrow(/can’t change events/)
+  })
+})
+
+describe('access for signed-in people', () => {
+  it('shows a member only published events and their dates, and staff the drafts too', async () => {
+    const member = { ...((await payload.create({ collection: 'users', data: { email: 'member@example.invalid', password: 'correct-horse-battery', role: 'member' } as never })) as object), collection: 'users' }
+    const staff = { ...user, collection: 'users' }
+    const draft = await payload.create({ collection: 'events', data: { name: 'Members-only draft', site: 'a', _status: 'draft' } as never, draft: true })
+    await payload.create({ collection: 'event-dates', data: { event: draft.id, starts: new Date().toISOString() } as never })
+    const read = async (who: object, collection: 'events' | 'event-dates', where: object) =>
+      (await payload.find({ collection, overrideAccess: false, user: who as never, where: where as never, draft: true, limit: 0, pagination: false })).totalDocs
+    expect(await read(member, 'events', { id: { equals: draft.id } })).toBe(0)
+    expect(await read(member, 'event-dates', { event: { equals: draft.id } })).toBe(0)
+    expect(await read(staff, 'events', { id: { equals: draft.id } })).toBe(1)
+    expect(await read(staff, 'event-dates', { event: { equals: draft.id } })).toBe(1)
+    const published = await mkEvent({ name: 'Open day' })
+    await mkDate(published)
+    expect(await read(member, 'events', { id: { equals: published.id } })).toBe(1)
+    expect(await read(member, 'event-dates', { event: { equals: published.id } })).toBe(1)
+  })
+})
+
+describe('copied fields', () => {
+  it('always takes them from the event: a date can’t claim another site, on create, on an edit or by moving', async () => {
+    const a = await mkEvent({ name: 'Site A show', site: 'a', reusable: true })
+    const b = await mkEvent({ name: 'Site B show', site: 'b', reusable: true })
+    const d = await mkDate(a, { site: 'b' })
+    expect((d as unknown as { site: string }).site).toBe('a')
+    const edited = await payload.update({ collection: 'event-dates', id: d.id, data: { site: 'b' } as never })
+    expect((edited as unknown as { site: string }).site).toBe('a')
+    const moved = await payload.update({ collection: 'event-dates', id: d.id, data: { event: b.id, site: 'a' } as never })
+    expect((moved as unknown as { site: string }).site).toBe('b')
   })
 })
 

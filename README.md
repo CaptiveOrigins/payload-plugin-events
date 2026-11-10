@@ -2,7 +2,7 @@
 
 Events for Payload: events and their dates, with repeat rules in each event's own timezone, near-me search, appearances and drop-off, a duplicate check, merge and split, and calendar files.
 
-**Status:** early, 0.x. The core passes 23 tests against a real Payload 3.92 and MongoDB with made-up events. The admin screens (live rule preview, the duplicate check, Arrange dates, organizer suggestions) were tried in a browser on a local copy of a real site with made-up events, with axe finding nothing in them. It isn't in use on any site yet.
+**Status:** early, 0.x. The core passes 27 tests against a real Payload 3.92 and MongoDB with made-up events. The admin screens (live rule preview, the duplicate check, Arrange dates, organizer suggestions) were tried in a browser on a local copy of a real site with made-up events, with axe finding nothing in them. It isn't in use on any site yet.
 
 ## What it does
 
@@ -41,6 +41,9 @@ events({
   access: { write: ({ req }) => isStaff(req.user) },
 })
 ```
+
+- **Who reads what.** Visitors and signed-in people read published events and their dates. Drafts are for those `access.write` lets in, and only where it lets them (a write rule that returns a query limits draft reads the same way). Pass `access.read` to replace this.
+- **Copied fields** (`copyToDates`) always come from the event: a value sent with a date is replaced, on create, on every edit and when the date moves to another event. So a date can't claim another site.
 
 ## Commands
 

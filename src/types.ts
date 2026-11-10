@@ -32,7 +32,10 @@ export type EventsOptions = {
   appearances?: false | { label?: string; enabled?: (args: { req: PayloadRequest; data?: unknown }) => boolean }
   /** Finds a map point for a venue (the site's own gazetteer, say). Without it, dates have no location. */
   geocode?: (args: { venue: Venue; req: PayloadRequest }) => Promise<{ lng: number; lat: number } | null>
-  /** Fields copied from an event onto its dates when they're made, e.g. `['tenant']` on a multi-site install. */
+  /**
+   * Fields copied from an event onto its dates, e.g. `['tenant']` on a multi-site install. They always come from the
+   * event: a value in the request is replaced, on create, on every edit and when a date moves to another event.
+   */
   copyToDates?: string[]
   /** How far ahead recurring dates are made, in months. Default 12. */
   horizonMonths?: number
