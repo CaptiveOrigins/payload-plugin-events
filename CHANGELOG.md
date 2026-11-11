@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 (2026-11-11)
 
 - **Behavior change (2026-11-11): only admin users write by default.** With no `access.write`, any signed-in account of any auth collection, members included, could create, edit and delete events and use the merge and arrange endpoints. Now only users of the admin collection (`admin.user` in the Payload config) can. Sites relying on the old default must pass the option.
 - **The write rule's answer is checked, not trusted.** Only `true` (any event) or a non-empty query (only events inside it) counts; any other truthy answer, an empty `{}`, an array, or an error is a no, answered 401 or 403 rather than a 500. This applies to the collection's access, draft reads and the endpoints.
