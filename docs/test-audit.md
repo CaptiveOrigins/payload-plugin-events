@@ -2,6 +2,16 @@
 
 Kept by this repo's owning session, per `~/Code/CLAUDE.md`, "Test self-audits". Newest first.
 
+## 2026-11-11: write access fails closed, and a query scopes the endpoints
+
+Suite: 27 tests before, 36 after (`npx vitest run`, real Payload 3.92, in-memory MongoDB, made-up events and users; no site).
+
+- **The change.** `src/access.ts`: `adminUsersOnly` (the default write rule: the user's collection equals `admin.user`), `asWhere` (a plain object with at least one key), `writeScope` (exactly `true`, a real query, or nothing; a throw is nothing) and `strictWrite` (what Payload gets as create, update and delete access). Draft reads use `writeScope` too. The endpoints' `mayWrite` takes the event ids a request names; with a query, it loads them through it (`{ and: [{ id: { in } }, query] }`) and answers 404 unless every one is inside.
+- **Tests.** `test/access-default.test.ts` (no `access` option, `users` plus a second auth collection `members`): a member can't create, edit or delete, or use merge, arrange, not-duplicate, similar or the rule preview (403, nothing changed); a member sees no drafts and an admin does; signed out is 401; an admin user writes and merges. `test/access-scoped.test.ts` (a rule answering `true` for a platform admin, `{ site: { in } }` for a curator, `false` for a member): a curator arranges and merges site A's events; arranging site B's, and every merge that touches site B (into, from, both, or mixed), is 404 with nothing changed; not-duplicate across sites is 404; a platform admin merges site B; a member is 403. Six non-answers (`1`, `'yes'`, `{}`, an array, a throw, a rejection): every endpoint is 403 and collection create, update and delete are 403 (never a 500), no drafts shown; a real query still scopes draft reads.
+- **Mutation checks.** 15, each a Python string replace restored byte for byte (SHA-256 checked); all 15 fail the suite: the old default in the collections and in the endpoints; `adminUsersOnly` without the collection check; truthy answers passing; errors rethrown; an empty `{}` or an array taken as a query; the raw answer handed to collection access; draft reads taking any truthy answer; the endpoint skipping the event check under a query, checking only the first event, or leaving the query out of the lookup; merge not checking `from`; arrange not checking its event; not-duplicate not checking the other event.
+- **Skipped.** The exported `arrangeDates` and `mergeEvents` functions don't gate themselves: they run as the request's user through Payload's access, and a site calling them directly decides who may. The `/:id/ics` endpoints read through Payload's read access and are unchanged.
+- **For the lead.** The plugin's own default `defaultTimezone`, `UTC`, isn't in the timezone field's list (`Intl.supportedValuesOf('timeZone')` here has no `UTC`), so with no `defaultTimezone` creating any event fails validation. The new default-access test sets a timezone to get past it; not fixed here.
+
 ## 2026-11-09: fixed choices (field audit)
 
 `test/events.test.ts` gains 1 (24 in all).

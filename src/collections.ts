@@ -1,5 +1,6 @@
 import { APIError, type Access, type CollectionConfig, type Field, type PayloadRequest, type Where } from 'payload'
 
+import { adminUsersOnly, strictWrite, writeScope } from './access.js'
 import { timezoneField, venueFields, ruleFields } from './fields.js'
 import { describeRule, nextOccurrences, ruleFingerprint, ruleProblems } from './rules.js'
 import { asPlugin, dayOf, eventsOptions, idOf, ruleOf, syncDates } from './sync.js'
@@ -22,8 +23,9 @@ const sameVenue = (a?: Venue | null, b?: Venue | null) => JSON.stringify(a ?? {}
 const hasVenue = (v?: Venue | null) => Boolean(v && Object.values(v).some((x) => typeof x === 'string' && x.trim()))
 
 export function eventCollections(o: ResolvedEventsOptions): CollectionConfig[] {
-  const signedIn: Access = ({ req }) => Boolean(req.user)
-  const write = o.access?.write ?? signedIn
+  // Only an exact `true` or a real query from the rule counts; anything else, an error included, is a no (2026-11-11).
+  const rule = o.access?.write ?? adminUsersOnly
+  const write = strictWrite(rule)
   const appearancesOn = (req: PayloadRequest, data?: unknown) => Boolean(o.appearances && (o.appearances.enabled?.({ req, data }) ?? true))
   const appearanceLabel = (o.appearances && o.appearances.label) || 'We’ll be there'
 
@@ -31,9 +33,9 @@ export function eventCollections(o: ResolvedEventsOptions): CollectionConfig[] {
   const readable =
     (published: Where): Access =>
     async (args) => {
-      const w = await write(args)
+      const w = await writeScope(rule, args)
       if (w === true) return true
-      return w ? { or: [w as Where, published] } : published
+      return w ? { or: [w, published] } : published
     }
   const readEvents: Access = o.access?.read ?? readable({ _status: { equals: 'published' } })
   const readDates: Access = o.access?.read ?? readable({ 'event._status': { equals: 'published' } } as Where)

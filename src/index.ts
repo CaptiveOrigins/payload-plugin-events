@@ -1,5 +1,6 @@
 import { addDataAndFileToRequest, APIError, type Config, type Endpoint, type PayloadRequest, type Plugin } from 'payload'
 
+import { adminUsersOnly, writeScope } from './access.js'
 import { eventCollections } from './collections.js'
 import { describeRule, nextOccurrences, ruleProblems } from './rules.js'
 import { dayOf, eventsOptions, ruleOf } from './sync.js'
@@ -7,6 +8,7 @@ import { arrangeDates, eventCalendar, findSimilar, mergeEvents } from './tools.j
 import { DEFAULT_TYPES, type EventDateDoc, type EventDoc, type EventsOptions, type ResolvedEventsOptions } from './types.js'
 
 export { describeRule, nextOccurrences, occurrences, ruleProblems, toICalRule, wallToInstant, type RepeatRule } from './rules.js'
+export { adminUsersOnly } from './access.js'
 export { syncDates, topUpRecurring } from './sync.js'
 export { arrangeDates, distanceMiles, dropOffDates, eventBySlug, eventCalendar, findSimilar, mergeEvents, nameSimilarity, nearbyDates, type Nearby, type Similar } from './tools.js'
 export { DEFAULT_TYPES, type EventDateDoc, type EventDoc, type EventsAudit, type EventsOptions, type EventType, type Venue } from './types.js'
@@ -15,11 +17,26 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 const ics = (body: string, name: string) =>
   new Response(body, { headers: { 'Content-Type': 'text/calendar; charset=utf-8', 'Content-Disposition': `attachment; filename="${name.replace(/[^\w.-]+/g, '-')}.ics"` } })
 
-async function mayWrite(req: PayloadRequest) {
+/**
+ * The endpoints' gate. The write rule must answer exactly `true` (any event) or a query (only events inside it);
+ * anything else, an error included, is 401 or 403. With a query, every event named in the request is loaded through
+ * it, and one outside it (or missing) is a 404, so a curator of one site can't reach another's.
+ */
+async function mayWrite(req: PayloadRequest, ids: unknown[] = []) {
   const o = eventsOptions(req.payload)
-  const rule = o.access?.write
-  const ok = rule ? await rule({ req } as never) : Boolean(req.user)
-  if (!ok) throw new APIError('You can’t change events.', req.user ? 403 : 401, undefined, true)
+  const scope = await writeScope(o.access?.write ?? adminUsersOnly, { req } as never)
+  if (!scope) throw new APIError('You can’t change events.', req.user ? 403 : 401, undefined, true)
+  if (scope === true) return
+  const wanted = [...new Set(ids.filter((id) => id !== undefined && id !== null).map(String))].filter(Boolean)
+  if (!wanted.length) return
+  let inside = 0
+  try {
+    const { docs } = await req.payload.find({ collection: o.events as never, where: { and: [{ id: { in: wanted } }, scope] }, limit: 0, depth: 0, pagination: false, draft: true, overrideAccess: true, req })
+    inside = new Set(docs.map((d) => String((d as { id: unknown }).id))).size
+  } catch {
+    inside = 0
+  }
+  if (inside !== wanted.length) throw new APIError('Event not found.', 404, undefined, true)
 }
 const body = async (req: PayloadRequest) => {
   await addDataAndFileToRequest(req)
@@ -70,9 +87,9 @@ function endpoints(o: ResolvedEventsOptions): { events: Endpoint[]; dates: Endpo
         path: '/:id/not-duplicate',
         method: 'post',
         handler: async (req) => {
-          await mayWrite(req)
           const id = String(req.routeParams?.id ?? '')
           const other = String((await body(req)).of ?? '')
+          await mayWrite(req, [id, other])
           for (const [a, b] of [
             [id, other],
             [other, id],
@@ -88,7 +105,7 @@ function endpoints(o: ResolvedEventsOptions): { events: Endpoint[]; dates: Endpo
         path: '/:id/arrange',
         method: 'post',
         handler: async (req) => {
-          await mayWrite(req)
+          await mayWrite(req, [req.routeParams?.id])
           const b = await body(req)
           return json(await arrangeDates(req, { event: String(req.routeParams?.id ?? ''), buckets: b.buckets as never, allIndividual: b.allIndividual === true, apply: b.apply === true }))
         },
@@ -97,9 +114,10 @@ function endpoints(o: ResolvedEventsOptions): { events: Endpoint[]; dates: Endpo
         path: '/merge',
         method: 'post',
         handler: async (req) => {
-          await mayWrite(req)
           const b = await body(req)
-          return json(await mergeEvents(req, { into: String(b.into ?? ''), from: (b.from as string[]) ?? [], apply: b.apply === true }))
+          const from = Array.isArray(b.from) ? b.from.map(String) : []
+          await mayWrite(req, [b.into, ...from])
+          return json(await mergeEvents(req, { into: String(b.into ?? ''), from, apply: b.apply === true }))
         },
       },
     ],

@@ -2,7 +2,7 @@
 
 Events for Payload: events and their dates, with repeat rules in each event's own timezone, near-me search, appearances and drop-off, a duplicate check, merge and split, and calendar files.
 
-**Status:** early, 0.x. The core passes 27 tests against a real Payload 3.92 and MongoDB with made-up events. The admin screens (live rule preview, the duplicate check, Arrange dates, organizer suggestions) were tried in a browser on a local copy of a real site with made-up events, with axe finding nothing in them. It isn't in use on any site yet.
+**Status:** early, 0.x. The core passes 36 tests against a real Payload 3.92 and MongoDB with made-up events. The admin screens (live rule preview, the duplicate check, Arrange dates, organizer suggestions) were tried in a browser on a local copy of a real site with made-up events, with axe finding nothing in them. It isn't in use on any site yet.
 
 ## What it does
 
@@ -54,7 +54,22 @@ events({
 ```
 
 - **Who reads what.** Visitors and signed-in people read published events and their dates. Drafts are for those `access.write` lets in, and only where it lets them (a write rule that returns a query limits draft reads the same way). Pass `access.read` to replace this.
+- **Who writes.** See [Access](#access).
 - **Copied fields** (`copyToDates`) always come from the event: a value sent with a date is replaced, on create, on every edit and when the date moves to another event. So a date can't claim another site.
+
+## Access
+
+`access.write` is a Payload `Access` function. It decides who creates, edits and deletes events, who reads drafts, and who uses the admin endpoints (rule preview, duplicate check, "not a duplicate", Arrange dates, merge). It can answer three ways:
+
+| Answer | Means |
+|---|---|
+| `true` | Any event |
+| A query, such as `{ tenant: { in: [...] } }` | Only events inside it. The endpoints load every event a request names through the query, and answer 404 if one is outside it, so a curator of one site can't arrange, merge or mark events of another, and a merge that mixes sites is refused whole |
+| Anything else | No. That includes `false`, `1`, `'yes'`, an empty `{}` (it would match every event), an array, and an error thrown or rejected. An error is a 403 (401 if nobody is signed in), never a 500 |
+
+With no `access.write`, only users of your admin collection (`admin.user` in your Payload config, usually `users`) can write. Accounts from any other auth collection, such as site members, are refused.
+
+**Changed 2026-11-11 (unreleased):** the default used to let any signed-in account write, members of other auth collections included, and the endpoints took any truthy answer from `access.write` as a yes. Sites relying on the old default must pass the option, for example `access: { write: ({ req }) => Boolean(req.user) }`.
 
 ## Commands
 

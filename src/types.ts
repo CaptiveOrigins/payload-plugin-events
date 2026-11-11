@@ -41,7 +41,11 @@ export type EventsOptions = {
   horizonMonths?: number
   /** Default timezone for new events. Default `UTC`. */
   defaultTimezone?: string
-  /** Who reads and who writes. Default: anyone reads published events and their dates; signed-in users write. */
+  /**
+   * Who reads and who writes. Default: anyone reads published events and their dates; only users of the admin
+   * collection (`admin.user`) write. `write` may answer `true` (any event) or a query (only events inside it); any
+   * other answer, an error included, is no.
+   */
   access?: { read?: Access; write?: Access }
   /**
    * Called before a date is deleted or moved away from its event by a person or the tools here. Return a reason to
