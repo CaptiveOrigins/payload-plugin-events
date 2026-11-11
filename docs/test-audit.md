@@ -2,6 +2,13 @@
 
 Kept by this repo's owning session, per `~/Code/CLAUDE.md`, "Test self-audits". Newest first.
 
+## 2026-11-11: the default timezone is always valid
+
+- **The change.** `src/fields.ts`: the timezone list starts with `UTC`, which `Intl.supportedValuesOf('timeZone')` leaves out. `src/index.ts`: a `defaultTimezone` outside the list is refused at start-up.
+- **Tests.** `test/default-timezone.test.ts`: with no `defaultTimezone`, a one-time event, its date, and a repeating event with its made dates all save in `UTC`; `Mars/Olympus_Mons` is refused at start-up with the message, `Europe/London` isn't. `test/access-default.test.ts` no longer needs its timezone workaround comment.
+- **Mutation checks.** 4, each a Python string replace restored byte for byte (SHA-256 checked); all 4 fail the new tests: `UTC` left out of the list (start-up refusal), the start-up check removed, both together (the save fails validation), and the default changed to `Etc/UTC`.
+- **Closes** the note for the lead in the entry below.
+
 ## 2026-11-11: write access fails closed, and a query scopes the endpoints
 
 Suite: 27 tests before, 36 after (`npx vitest run`, real Payload 3.92, in-memory MongoDB, made-up events and users; no site).

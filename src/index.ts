@@ -2,6 +2,7 @@ import { addDataAndFileToRequest, APIError, type Config, type Endpoint, type Pay
 
 import { adminUsersOnly, writeScope } from './access.js'
 import { eventCollections } from './collections.js'
+import { timezones } from './fields.js'
 import { describeRule, nextOccurrences, ruleProblems } from './rules.js'
 import { dayOf, eventsOptions, ruleOf } from './sync.js'
 import { arrangeDates, eventCalendar, findSimilar, mergeEvents } from './tools.js'
@@ -154,6 +155,8 @@ export const events =
       defaultTimezone: 'UTC',
       ...options,
     }
+    if (!timezones().includes(o.defaultTimezone))
+      throw new Error(`events: defaultTimezone "${o.defaultTimezone}" isn’t in the timezone list, so no event could be saved. Use an IANA name such as "America/Phoenix", or leave it out for UTC.`)
     for (const slug of [o.events, o.dates]) if ((config.collections ?? []).some((c) => c.slug === slug)) throw new Error(`events: a collection "${slug}" already exists.`)
     if (o.media && !(config.collections ?? []).some((c) => c.slug === o.media)) throw new Error(`events: no upload collection "${o.media}" for logos (set media: false to go without).`)
     const [ev, dt] = eventCollections(o)

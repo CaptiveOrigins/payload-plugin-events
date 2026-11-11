@@ -7,7 +7,11 @@ const DAY_LABELS: Record<string, string> = { MO: 'Monday', TU: 'Tuesday', WE: 'W
 export const weekdayOptions = WEEKDAYS.map((value) => ({ value, label: DAY_LABELS[value]! }))
 
 let zones: string[] | null = null
-export const timezones = () => (zones ??= (Intl as unknown as { supportedValuesOf: (k: string) => string[] }).supportedValuesOf('timeZone'))
+/**
+ * The timezone field's choices: `UTC`, the plugin's default, then every IANA zone this runtime knows.
+ * `Intl.supportedValuesOf('timeZone')` leaves `UTC` out, so it's added here, or the default couldn't be saved.
+ */
+export const timezones = () => (zones ??= ['UTC', ...(Intl as unknown as { supportedValuesOf: (k: string) => string[] }).supportedValuesOf('timeZone').filter((z) => z !== 'UTC')])
 export const timezoneField = (name: string, defaultValue: string, extra: Partial<Field> = {}): Field =>
   ({ name, type: 'select', defaultValue, options: timezones().map((z) => ({ label: z.replace(/_/g, ' '), value: z })), ...extra }) as Field
 

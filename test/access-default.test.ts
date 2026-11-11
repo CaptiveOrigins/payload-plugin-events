@@ -27,7 +27,6 @@ beforeAll(async () => {
         { slug: 'users', auth: true, fields: [] },
         { slug: 'members', auth: true, fields: [] },
       ],
-      // A timezone from the field's list: the plugin's own default, `UTC`, isn't one (noted for the lead, 2026-11-11).
       plugins: [events({ media: false, defaultTimezone: 'America/Phoenix' })],
     }),
   })

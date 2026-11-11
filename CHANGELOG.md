@@ -5,8 +5,9 @@
 - **Behavior change (2026-11-11): only admin users write by default.** With no `access.write`, any signed-in account of any auth collection, members included, could create, edit and delete events and use the merge and arrange endpoints. Now only users of the admin collection (`admin.user` in the Payload config) can. Sites relying on the old default must pass the option.
 - **The write rule's answer is checked, not trusted.** Only `true` (any event) or a non-empty query (only events inside it) counts; any other truthy answer, an empty `{}`, an array, or an error is a no, answered 401 or 403 rather than a 500. This applies to the collection's access, draft reads and the endpoints.
 - **A query from the write rule now scopes the endpoints.** Arrange dates, merge and "not a duplicate" load every event they name through the query and answer 404 if one is outside it. Before, a curator of one site could merge or arrange another site's events through them.
+- **Fix (2026-11-11): a site with no `defaultTimezone` can create events.** The default, `UTC`, wasn't one of the timezone field's choices (`Intl.supportedValuesOf('timeZone')` leaves it out), so every new event failed validation. `UTC` is now the first choice. A `defaultTimezone` that isn't in the list is refused at start-up with a plain message, instead of failing on the first save.
 
-Tested: 36 tests (9 new, in `test/access-default.test.ts` and `test/access-scoped.test.ts`), 15 mutation checks. Not yet tried on a site.
+Tested: 38 tests (2 new, in `test/default-timezone.test.ts`), 4 mutation checks for the timezone fix. Earlier in this release: 36 tests (9 new, in `test/access-default.test.ts` and `test/access-scoped.test.ts`), 15 mutation checks. Not yet tried on a site.
 
 ## 0.1.2 (2026-11-10)
 
