@@ -19,6 +19,17 @@ Events for Payload: events and their dates, with repeat rules in each event's ow
 
 Not built here: the site's own pages, and anything about kits or orders. A site protects dates it depends on through `protectDate`.
 
+## On its own, and with others
+
+**On its own:** Events needs only Payload. Give it a `geocode` function if you want near-me and drop-off searches, and a `protectDate` check if anything on your site depends on a date.
+
+**Works with:**
+- **Sample Kits:** your site maps Events' `dropOffDates` onto Sample Kits' `adapters.events.dropOffChoices`, so buyers can hand kits in at an event, and `protectDate` can protect a date that has kits booked, as in [Use](#use). Events knows nothing about kits.
+
+It doesn't need any other plugin, and nothing here is specific to one.
+
+**Family:** Events has no family on purpose: it's meant to work with any plugin. The families are a working draft, and Fulfillment is due to be split.
+
 ## Install
 
 ```bash
