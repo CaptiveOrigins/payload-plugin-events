@@ -33,7 +33,7 @@ It doesn't need any other plugin, and nothing here is specific to one.
 ## Install
 
 ```bash
-npm install @captiveorigins/payload-plugin-events
+npm install @extantape/payload-plugin-events
 ```
 
 Needs Payload 3.80 or later, React 19 and Node 22 or later.
@@ -41,7 +41,7 @@ Needs Payload 3.80 or later, React 19 and Node 22 or later.
 ## Use
 
 ```ts
-import { events } from '@captiveorigins/payload-plugin-events'
+import { events } from '@extantape/payload-plugin-events'
 
 events({
   copyToDates: ['tenant'],

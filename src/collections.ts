@@ -48,7 +48,7 @@ export function eventCollections(o: ResolvedEventsOptions): CollectionConfig[] {
     access: { read: readEvents, create: write, update: write, delete: write },
     fields: [
       { name: 'name', type: 'text', required: true },
-      { name: 'duplicateCheck', type: 'ui', admin: { components: { Field: '@captiveorigins/payload-plugin-events/client#DuplicateCheck' }, condition: (d: Record<string, unknown>) => !d?.id } },
+      { name: 'duplicateCheck', type: 'ui', admin: { components: { Field: '@extantape/payload-plugin-events/client#DuplicateCheck' }, condition: (d: Record<string, unknown>) => !d?.id } },
       { name: 'slug', type: 'text', index: true, admin: { position: 'sidebar', description: 'Made from the name if left empty.' } },
       { name: 'type', type: 'select', required: true, defaultValue: 'other', options: o.types, admin: { position: 'sidebar' } },
       { name: 'summary', type: 'textarea' },
@@ -56,7 +56,7 @@ export function eventCollections(o: ResolvedEventsOptions): CollectionConfig[] {
         type: 'row',
         fields: [
           { name: 'website', type: 'text', validate: (v: unknown) => !v || /^https?:\/\/\S+\.\S+/.test(String(v)) || 'Start the address with https://' },
-          { name: 'organizer', type: 'text', admin: { components: { Field: '@captiveorigins/payload-plugin-events/client#OrganizerField' } } },
+          { name: 'organizer', type: 'text', admin: { components: { Field: '@extantape/payload-plugin-events/client#OrganizerField' } } },
         ],
       },
       ...(o.media
@@ -73,7 +73,7 @@ export function eventCollections(o: ResolvedEventsOptions): CollectionConfig[] {
         ],
       },
       { name: 'rule', type: 'group', label: 'Repeats', admin: { condition: (d: Record<string, unknown>) => Boolean(d?.recurring) }, fields: ruleFields(o.defaultTimezone) },
-      { name: 'rulePreview', type: 'ui', admin: { components: { Field: '@captiveorigins/payload-plugin-events/client#RulePreview' }, condition: (d: Record<string, unknown>) => Boolean(d?.recurring) } },
+      { name: 'rulePreview', type: 'ui', admin: { components: { Field: '@extantape/payload-plugin-events/client#RulePreview' }, condition: (d: Record<string, unknown>) => Boolean(d?.recurring) } },
       { name: 'ruleSummary', type: 'textarea', label: 'In words, with the next dates', admin: { readOnly: true, condition: (d: Record<string, unknown>) => Boolean(d?.recurring) } },
       { name: 'ruleFingerprint', type: 'text', admin: { hidden: true } },
       { name: 'defaultVenue', type: 'group', label: 'Usual venue', admin: { description: 'New dates start with this venue.', condition: (d: Record<string, unknown>) => Boolean(d?.reusable || d?.recurring) }, fields: venueFields },
@@ -89,7 +89,7 @@ export function eventCollections(o: ResolvedEventsOptions): CollectionConfig[] {
           ] as Field[])
         : []),
       { name: 'dates', type: 'join', collection: o.dates as never, on: 'event', defaultSort: 'starts', defaultLimit: 20, admin: { description: 'Add a date here and it’s linked to this event.', condition: (d: Record<string, unknown>) => Boolean(d?.id) } },
-      { name: 'arrange', type: 'ui', label: 'Arrange dates', admin: { components: { Field: '@captiveorigins/payload-plugin-events/client#ArrangeDates' }, condition: (d: Record<string, unknown>) => Boolean(d?.id) } },
+      { name: 'arrange', type: 'ui', label: 'Arrange dates', admin: { components: { Field: '@extantape/payload-plugin-events/client#ArrangeDates' }, condition: (d: Record<string, unknown>) => Boolean(d?.id) } },
       { name: 'notDuplicateOf', type: 'relationship', relationTo: o.events as never, hasMany: true, admin: { readOnly: true, position: 'sidebar', description: 'Events someone said this is not a copy of.' } },
       { name: 'formerSlugs', type: 'text', hasMany: true, admin: { readOnly: true, position: 'sidebar', description: 'Old addresses that lead here after a merge.' } },
     ],

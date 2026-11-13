@@ -106,7 +106,7 @@ export function ruleFields(defaultTimezone: string): Field[] {
           type: 'text',
           label: 'Starts at',
           validate: (v: unknown) => (isStartTime(v) ? true : 'Pick a start time in 15-minute steps.'),
-          admin: { width: '20%', description: 'Local time.', components: { Field: '@captiveorigins/payload-plugin-events/client#TimeSelect' } },
+          admin: { width: '20%', description: 'Local time.', components: { Field: '@extantape/payload-plugin-events/client#TimeSelect' } },
         },
         { name: 'durationMinutes', type: 'number', min: 0, defaultValue: 120, label: 'Length (minutes)', admin: { width: '20%' } },
       ],
