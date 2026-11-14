@@ -2,7 +2,7 @@
 
 Dated decisions for this repo, newest last.
 
-- 2026-11-09: created from the ops starter kit, area `captive-origins`.
+- 2026-11-09: created from the ops starter kit, area `plugins`.
 - 2026-11-09: the owner's plan lives in the private platform repo (approved in principle 2026-11-09, with his answers).
 - 2026-11-09 (build): **wall-clock times.** Rules are worked out in floating time with the open-source `rrule` library, then turned into real instants in the event's timezone. A time skipped by spring-forward moves on by the gap; a repeated fall-back time takes the first.
 - 2026-11-09 (build): **generated dates keep their slot.** Each made date records the rule it came from and its original start. A person's edit marks it `edited`, and the rule never touches it again, even if it was moved.

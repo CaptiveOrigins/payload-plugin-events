@@ -35,7 +35,7 @@ beforeAll(async () => {
           media: false,
           copyToDates: ['site'],
           defaultTimezone: 'America/Phoenix',
-          appearances: { label: 'Captive Origins will be there', enabled: ({ data }) => (data as { site?: string } | undefined)?.site !== 'b' },
+          appearances: { label: 'Our team will be there', enabled: ({ data }) => (data as { site?: string } | undefined)?.site !== 'b' },
           geocode: async ({ venue }) => {
             geocoded.push(String(venue.postalCode))
             const p = POINTS[String(venue.postalCode)]
